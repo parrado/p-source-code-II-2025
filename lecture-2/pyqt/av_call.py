@@ -2,6 +2,11 @@
 # pip install opencv-python
 import socket, threading, pyaudio, cv2, pickle, struct
 
+from PyQt5.QtGui import QPixmap
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLabel
+
 # Audio config
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -9,12 +14,13 @@ CHANNELS = 1
 RATE = 44100
 
 class av_server:
-    def __init__(self):
+    def __init__(self, label:QLabel):
         self.audio_sock = socket.socket()
         self.video_sock = socket.socket()
 
         self.audio_sock.bind(('0.0.0.0', 5000))
         self.video_sock.bind(('0.0.0.0', 6000))
+        self.label = label
        
 
         #threading.Event().wait()  # keep main thread alive
@@ -93,9 +99,8 @@ class av_server:
                     frame = pickle.loads(frame_data)
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
                     if frame is not None:
-                        cv2.imshow("Peer Video", frame)
-                        if cv2.waitKey(1) == 27:
-                            break
+                        qt_img = self.convert_cv_qt(frame)
+                        self.label.setPixmap(qt_img)
                 except Exception as e:
                     print("Video recv error:", e)
                     break
@@ -118,16 +123,27 @@ class av_server:
             self.__audio_handler()
             self.__video_handler()
         threading.Thread(target=server_thread, daemon=True).start()
+    
+
+    def convert_cv_qt(self, cv_img):
+        # Convert from an opencv image to QPixmap
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
+        return QPixmap.fromImage(p)
         
 
 
 
 class av_client:
-    def __init__(self, server_ip):
+    def __init__(self, server_ip,label:QLabel):
 
         self.audio_sock = socket.socket()
         self.video_sock = socket.socket()
         self.server_ip=server_ip
+        self.label = label
 
 
         #threading.Event().wait()  # keep main thread alive
@@ -206,9 +222,8 @@ class av_client:
                     frame = pickle.loads(frame_data)
                     frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
                     if frame is not None:
-                        cv2.imshow("Peer Video", frame)
-                        if cv2.waitKey(1) == 27:
-                            break
+                        qt_img = self.convert_cv_qt(frame)
+                        self.label.setPixmap(qt_img)
                 except Exception as e:
                     print("Video recv error:", e)
                     break

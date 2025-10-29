@@ -9,6 +9,12 @@ class NewWindow(QMainWindow):
         self.resize(640,480)
         self.setWindowTitle("New Window")
 
+        self.display_width = 640
+        self.display_height = 480
+        # create the label that holds the image
+        self.image_label = QLabel(self)
+        self.image_label.resize(self.display_width, self.display_height)
+
         button=QPushButton('Conectar con médico')
         button.clicked.connect(self.call_doctor)
         
@@ -16,9 +22,10 @@ class NewWindow(QMainWindow):
         self.text=QLineEdit()
         layout=QGridLayout()
 
-        layout.addWidget(label, 0, 0)
-        layout.addWidget(self.text, 0, 1)
-        layout.addWidget(button, 1, 0)
+        layout.addWidget(self.image_label, 0, 0, 2, 2)
+        layout.addWidget(label, 1, 0,1,1,Qt.AlignCenter)
+        layout.addWidget(self.text, 1, 1,1,1,Qt.AlignCenter)
+        layout.addWidget(button, 2, 0,2,2,Qt.AlignCenter)
 
         centralWidget = QWidget()
         centralWidget.setLayout(layout)
@@ -26,6 +33,6 @@ class NewWindow(QMainWindow):
     
     
     def call_doctor(self):
-        call=av_client(self.text.text())
+        call=av_client(self.text.text(), self.image_label)
         print('Conectando a médico en IP:', self.text.text())
         call.connect()
