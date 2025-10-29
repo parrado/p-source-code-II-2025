@@ -23,9 +23,9 @@ class NewWindow(QMainWindow):
         layout=QGridLayout()
 
         layout.addWidget(self.image_label, 0, 0, 2, 2)
-        layout.addWidget(label, 1, 0,1,1,Qt.AlignCenter)
-        layout.addWidget(self.text, 1, 1,1,1,Qt.AlignCenter)
-        layout.addWidget(button, 2, 0,2,2,Qt.AlignCenter)
+        layout.addWidget(label, 2, 0,1,1,Qt.AlignCenter)
+        layout.addWidget(self.text, 2, 1,1,1,Qt.AlignCenter)
+        layout.addWidget(button, 3, 0,1,2,Qt.AlignCenter)
 
         centralWidget = QWidget()
         centralWidget.setLayout(layout)
