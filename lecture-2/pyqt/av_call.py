@@ -14,14 +14,15 @@ CHANNELS = 1
 RATE = 44100
 
 class av_server:
-    def __init__(self, label:QLabel):
+    def __init__(self, label:QLabel, display_width, display_height):
         self.audio_sock = socket.socket()
         self.video_sock = socket.socket()
 
         self.audio_sock.bind(('0.0.0.0', 5000))
         self.video_sock.bind(('0.0.0.0', 6000))
         self.label = label
-       
+        self.display_width = display_width
+        self.display_height = display_height
 
         #threading.Event().wait()  # keep main thread alive
 
@@ -131,19 +132,21 @@ class av_server:
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
-        p = convert_to_Qt_format.scaled(self.disply_width, self.display_height, Qt.KeepAspectRatio)
+        p = convert_to_Qt_format.scaled(self.display_width, self.display_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
         
 
 
 
 class av_client:
-    def __init__(self, server_ip,label:QLabel):
+    def __init__(self, server_ip,label:QLabel, display_width, display_height):
 
         self.audio_sock = socket.socket()
         self.video_sock = socket.socket()
         self.server_ip=server_ip
         self.label = label
+        self.display_width = display_width
+        self.display_height = display_height
 
 
         #threading.Event().wait()  # keep main thread alive
@@ -246,4 +249,13 @@ class av_client:
 
         
         threading.Thread(target=connect_thread, daemon=True).start()
+
+    def convert_cv_qt(self, cv_img):
+        # Convert from an opencv image to QPixmap
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(self.display_width, self.display_height, Qt.KeepAspectRatio)
+        return QPixmap.fromImage(p)
 

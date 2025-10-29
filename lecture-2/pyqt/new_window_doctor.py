@@ -11,7 +11,7 @@ class NewWindow(QMainWindow):
         self.display_width = 640
         self.display_height = 480
         # create the label that holds the image
-        self.image_label = QLabel(self)
+        self.image_label = QLabel()
         self.image_label.resize(self.display_width, self.display_height)
 
         button=QPushButton('Atender paciente')
@@ -28,5 +28,5 @@ class NewWindow(QMainWindow):
     
     
     def receive_patient(self):
-        server=av_server(self.image_label)
+        server=av_server(self.image_label,self.display_width,self.display_height)
         server.start_server()

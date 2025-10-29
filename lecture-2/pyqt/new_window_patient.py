@@ -33,6 +33,6 @@ class NewWindow(QMainWindow):
     
     
     def call_doctor(self):
-        call=av_client(self.text.text(), self.image_label)
+        call=av_client(self.text.text(), self.image_label, self.display_width, self.display_height)
         print('Conectando a médico en IP:', self.text.text())
         call.connect()
